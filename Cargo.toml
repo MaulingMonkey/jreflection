@@ -1,13 +1,16 @@
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+# https://crates.io/category_slugs
+
 [package]
 name = "jreflection"
-version = "0.0.10"
+version = "0.0.0-git"
 authors = ["MaulingMonkey <git@maulingmonkey.com>"]
 edition = "2018"
-description = "Static reflection APIs for analyzing jars"
+description = "Static reflection APIs for analyzing jars and jimage files"
 documentation = "https://docs.rs/jreflection/"
-repository = "https://github.com/MaulingMonkey/jni-bindgen"
-keywords = ["jvm", "jni", "bindgen", "android"]
-categories = ["development-tools::ffi"]
+repository = "https://github.com/MaulingMonkey/jreflection"
+keywords = ["java", "jvm", "jar", "jimage", "reflection"]
+categories = ["parser-implementations"]
 license = "MIT OR Apache-2.0"
 include = ["/**/*.rs", "/Cargo.toml", "/LICENSE-MIT", "/LICENSE-APACHE"]
 
