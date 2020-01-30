@@ -1,5 +1,4 @@
 language: rust
-sudo: false
 
 branches:
   except:
@@ -16,22 +15,10 @@ matrix:
     - { os: linux, rust: nightly  }
 
 script:
-  # Modern Java has trouble with sdkmanager: https://stackoverflow.com/questions/46402772/failed-to-install-android-sdk-java-lang-noclassdeffounderror-javax-xml-bind-a
-  - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre/
-  - pushd scripts
-  - chmod 755 ./install.sh
-  - chmod 755 ./test.sh
-  - ./install.sh
-  - ./test.sh
-  - popd
+  - cargo test --all
 
 addons:
   apt:
     packages:
       - openjdk-8-jdk
       - unzip
-
-cache:
-  directories:
-    - $TRAVIS_HOME/android-sdk-tmp/
-    - $TRAVIS_HOME/.gradle/wrapper/
