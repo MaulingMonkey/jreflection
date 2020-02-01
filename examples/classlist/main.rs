@@ -70,15 +70,13 @@ impl Classes {
     }
 
     fn injest_src(&mut self, src: Source, set_class_bit: impl Fn(&mut Class)) {
-        // Read classes upfront to workaround https://github.com/MaulingMonkey/jreflection/issues/5
-        let classes = src.classes::<Vec<String>>().expect("Unable to read classes");
-
-        for name in classes.iter() {
+        src.for_each_class(|name|{
             let entry = self.0.entry(name.to_string()).or_default();
             set_class_bit(entry);
             let class = src.read_class(name).expect("Unable to read class");
             entry.is_public.merge(class.is_public());
-        }
+            Ok(())
+        }).unwrap();
     }
 
     pub fn write_markdown_to(&self, path: impl AsRef<Path>) -> io::Result<()> {

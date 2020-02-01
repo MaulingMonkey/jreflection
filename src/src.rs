@@ -2,7 +2,6 @@
 
 use crate::Class;
 use zip::ZipArchive;
-use std::borrow::Cow;
 use std::cell::RefCell;
 use std::default::Default;
 use std::fs::File;
@@ -56,7 +55,7 @@ impl Source {
         }
     }
 
-    pub fn for_each_class(&self, mut f: impl FnMut(Cow<'_, str>) -> Result<()>) -> Result<()> {
+    pub fn for_each_class(&self, mut f: impl FnMut(String) -> Result<()>) -> Result<()> {
         match &self.0 {
             SourceInt::Jar(jar)     => jar.for_each_class(|c| f(c.into())),
             SourceInt::JImage(img)  => img.for_each_class(|c| f(c.into())),
@@ -66,7 +65,7 @@ impl Source {
     pub fn classes<C: Default + Extend<String>>(&self) -> Result<C> {
         let mut collection = C::default();
         self.for_each_class(|class|{
-            collection.extend(Some(class.to_string()));
+            collection.extend(Some(class));
             Ok(())
         })?;
         Ok(collection)
@@ -89,14 +88,17 @@ impl Jar {
         Class::read(&mut entry)
     }
 
-    pub fn for_each_class(&self, mut f: impl FnMut(&str) -> Result<()>) -> Result<()> {
-        let mut zip = self.0.borrow_mut();
-        for i in 0..zip.len() {
-            let entry = zip.by_index(i)?;
-            let name = entry.name();
-            if name.ends_with(".class") {
-                f(&name[..name.len()-6])?;
-            }
+    pub fn for_each_class(&self, mut f: impl FnMut(String) -> Result<()>) -> Result<()> {
+        let n = self.0.borrow().len();
+        for i in 0..n {
+            let name = {
+                let mut zip = self.0.borrow_mut();
+                let entry = zip.by_index(i)?;
+                let name = entry.name();
+                if !name.ends_with(".class") { continue; }
+                name[..name.len()-6].to_string()
+            };
+            f(name)?;
         }
         Ok(())
     }
