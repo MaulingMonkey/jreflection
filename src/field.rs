@@ -41,6 +41,7 @@ impl Flags {
     }
 }
 
+/// [Java SE 7 &sect; 4.7.2](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.2): The value of compile time constant fields
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub enum Constant {
     Integer(i32),
@@ -162,6 +163,9 @@ impl Field {
 
 
 
+/// The [type erased], non-array, value or class portion of a type (e.g. `int` or `java.lang.List`, but not `Object[]`)
+/// 
+/// [type erased]: https://docs.oracle.com/javase/tutorial/java/generics/erasure.html
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum BasicType<'a> {
     Byte,
@@ -178,6 +182,9 @@ pub enum BasicType<'a> {
 
 
 
+/// The [type erased] description of the type of a field (e.g. `int[]` or `Object`, but not `java.lang.List<T>`)
+/// 
+/// [type erased]: https://docs.oracle.com/javase/tutorial/java/generics/erasure.html
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Descriptor<'a> {
     Single(BasicType<'a>),
