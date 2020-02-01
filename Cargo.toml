@@ -3,7 +3,7 @@
 
 [package]
 name = "jreflection"
-version = "0.0.0-git"
+version = "0.0.11"
 authors = ["MaulingMonkey <git@maulingmonkey.com>"]
 edition = "2018"
 description = "Static reflection APIs for analyzing jars and jimage files"
