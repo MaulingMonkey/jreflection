@@ -2,13 +2,49 @@ use jreflection::*;
 use std::collections::*;
 use std::path::*;
 use std::io::{self, BufWriter, Write};
+use std::mem::take;
 
 const CLASSES_PLACEHOLDER : &'static str = "{CLASSES}";
 const TEMPLATE_MD : &'static str = include_str!("template.md");
 const TEMPLATE_HTML : &'static str = include_str!("template.html");
 
+#[derive(Clone, Copy)]
+enum Consistency<T: PartialEq> {
+    None,
+    Consistent(T),
+    Inconsistent(T, T),
+}
+
+impl<T: PartialEq> std::default::Default for Consistency<T> {
+    fn default() -> Self { Consistency::None }
+}
+
+impl<T: PartialEq> Consistency<T> {
+    pub fn merge(&mut self, value: T) {
+        *self = match take(self) {
+            Consistency::None => Consistency::Consistent(value),
+            Consistency::Consistent(v) => {
+                if v == value {
+                    Consistency::Consistent(v)
+                } else {
+                    Consistency::Inconsistent(v, value)
+                }
+            },
+            Consistency::Inconsistent(a,b) => Consistency::Inconsistent(a,b),
+        };
+    }
+
+    pub fn into_consistent(self) -> Option<T> {
+        match self {
+            Consistency::Consistent(v) => Some(v),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Default)]
 struct Class {
+    pub is_public:      Consistency<bool>,
     pub java_jdk:       u64,
     pub java_jre:       u64,
     pub aojdk_jdk:      u64,
@@ -34,12 +70,15 @@ impl Classes {
     }
 
     fn injest_src(&mut self, src: Source, set_class_bit: impl Fn(&mut Class)) {
-        src.for_each_class(|name|{
-            let name = name.to_string();
-            let entry = self.0.entry(name).or_default();
+        // Read classes upfront to workaround https://github.com/MaulingMonkey/jreflection/issues/5
+        let classes = src.classes::<Vec<String>>().expect("Unable to read classes");
+
+        for name in classes.iter() {
+            let entry = self.0.entry(name.to_string()).or_default();
             set_class_bit(entry);
-            Ok(())
-        }).unwrap();
+            let class = src.read_class(name).expect("Unable to read class");
+            entry.is_public.merge(class.is_public());
+        }
     }
 
     pub fn write_markdown_to(&self, path: impl AsRef<Path>) -> io::Result<()> {
@@ -60,7 +99,13 @@ impl Classes {
         let mut classes_md = BufWriter::new(std::fs::File::create(path)?);
         write!(classes_md, "{}", template_pre)?;
 
+        let mut public = 0;
         for (name, data) in self.0.iter() {
+            if !data.is_public.into_consistent().unwrap_or(true) {
+                continue; // Skip non-public classes
+            }
+
+            public += 1;
             write!(classes_md, "    <tr><td>{}", name)?;
             for (col,               max) in [
                 (data.java_jdk,     13),
@@ -76,6 +121,8 @@ impl Classes {
         }
 
         write!(classes_md, "{}", template_post)?;
+
+        println!("    {} were public", public);
         Ok(())
     }
 
