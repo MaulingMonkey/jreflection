@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <title>Java Class List</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; box-sizing: border-box; }
+        tr:nth-child(3n) { border-top: 1px solid #BBB; }
+
+        tr th.java          { background-color: #FDD; }
+        tr th.aojdk         { background-color: #DEF; }
+        tr th.android       { background-color: #DFB; }
+
+        tr td:nth-child(1) { background-color: #FFF; }
+        tr td:nth-child(2) { background-color: #FBB; }
+        tr td:nth-child(3) { background-color: #FDD; }
+        tr td:nth-child(4) { background-color: #BDF; }
+        tr td:nth-child(5) { background-color: #DEF; }
+        tr td:nth-child(6) { background-color: #DFB; }
+    </style>
+
+</head><body><table>
+    <tr>
+        <th class="none"    colspan="1">Class</th>
+        <th class="java"    colspan="2">Java</th>
+        <th class="aojdk"   colspan="2">AdoptOpenJDK</th>
+        <th class="android" colspan="1">Android</th>
+    </tr><tr>
+        <th class="none"    >Name</th>
+        <th class="java"    >JDK</th>
+        <th class="java"    >JRE</th>
+        <th class="aojdk"   >JDK</th>
+        <th class="aojdk"   >JRE</th>
+        <th class="android" >ADK</th>
+    </tr>
+{CLASSES}
+</table></body></html>

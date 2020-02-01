@@ -31,5 +31,9 @@
         { "label": "Open crates.io",        "windows": { "command": "start \"\" https://crates.io/crates/jreflection" } },
         { "label": "Open docs.rs",          "windows": { "command": "start \"\" https://docs.rs/jreflection" } },
         { "label": "Open local docs",       "windows": { "command": "start \"\" target/doc/jreflection/index.html" } },
+
+        // launch.json pre-launch build targets (intentionally hidden from the "build" group)
+        { "label": "classlist | cargo build --target=x86_64-pc-windows-msvc",             "windows": { "command": "cargo +stable-pc-windows-msvc build --target=x86_64-pc-windows-msvc           --example classlist" } },
+        { "label": "classlist | cargo build --target=x86_64-pc-windows-msvc --release",   "windows": { "command": "cargo +stable-pc-windows-msvc build --target=x86_64-pc-windows-msvc --release --example classlist" } },
     ],
 }
