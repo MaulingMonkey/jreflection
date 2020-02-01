@@ -12,7 +12,8 @@ repository = "https://github.com/MaulingMonkey/jreflection"
 keywords = ["java", "jvm", "jar", "jimage", "reflection"]
 categories = ["parser-implementations"]
 license = "MIT OR Apache-2.0"
-include = ["/**/*.rs", "/Cargo.toml", "/LICENSE-MIT", "/LICENSE-APACHE"]
+include = ["/**/*.rs", "/Cargo.toml", "/LICENSE-MIT", "/LICENSE-APACHE", "/Readme.md"]
+readme = "Readme.md"
 
 
 [dependencies]
