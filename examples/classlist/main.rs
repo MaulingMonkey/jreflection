@@ -2,6 +2,7 @@ use jreflection::*;
 use std::collections::*;
 use std::path::*;
 use std::io::{self, BufWriter, Write};
+use std::time::Instant;
 
 const CLASSES_PLACEHOLDER : &'static str = "{CLASSES}";
 const TEMPLATE_MD : &'static str = include_str!("template.md");
@@ -155,6 +156,7 @@ impl Classes {
 }
 
 fn main() {
+    let start = Instant::now();
     let mut classes = Classes::new();
 
     // Injest
@@ -193,6 +195,8 @@ fn main() {
     // Output
     classes.write_markdown_to("classes.md").expect("Failed to write classes.md");
     classes.write_html_to("classes.html").expect("Failed to write classes.html");
+    let end = Instant::now();
+    println!("Took {:?}", end-start);
 }
 
 // Polyfill std::mem::take (added in 1.40.0, current MSRV 1.36.0)
