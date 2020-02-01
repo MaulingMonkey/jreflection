@@ -79,6 +79,7 @@ pub mod common {
 // I/O errors here "probably" indicate bugs in class parsing - break at the callsite for ease of debugging.
 // The other alternative is you're parsing bad/corrupt classes, so good luck with that.
 
+#[doc(hidden)] // While jni-bindgen secretly uses these, I'm not making this a guaranteed part of the API
 #[macro_export]
 macro_rules! io_data_error {
     ($($arg:tt)*) => {{
@@ -89,6 +90,7 @@ macro_rules! io_data_error {
     }};
 }
 
+#[doc(hidden)] // While jni-bindgen secretly uses these, I'm not making this a guaranteed part of the API
 #[macro_export]
 macro_rules! io_data_err {
     ($($arg:tt)*) => { Err($crate::io_data_error!($($arg)*)) };
