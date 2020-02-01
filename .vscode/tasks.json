@@ -7,7 +7,7 @@
     "type": "shell",
     "options": {
         "cwd": "${workspaceFolder}",
-        "env": { "RUST_BACKTRACE": "1" },
+        "env": { "RUST_BACKTRACE": "1", "RUSTUP_TOOLCHAIN": "1.36.0" },
     },
     "tasks": [
         // Scripts
@@ -33,7 +33,7 @@
         { "label": "Open local docs",       "windows": { "command": "start \"\" target/doc/jreflection/index.html" } },
 
         // launch.json pre-launch build targets (intentionally hidden from the "build" group)
-        { "label": "classlist | cargo build --target=x86_64-pc-windows-msvc",             "windows": { "command": "cargo +stable-pc-windows-msvc build --target=x86_64-pc-windows-msvc           --example classlist" } },
-        { "label": "classlist | cargo build --target=x86_64-pc-windows-msvc --release",   "windows": { "command": "cargo +stable-pc-windows-msvc build --target=x86_64-pc-windows-msvc --release --example classlist" } },
+        { "label": "classlist | cargo build",             "windows": { "command": "cargo build           --example classlist" } },
+        { "label": "classlist | cargo build --release",   "windows": { "command": "cargo build --release --example classlist" } },
     ],
 }

@@ -2,16 +2,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "classlist | Debug x64 MSVC", "type": "cppvsdbg", "request": "launch",
-            "preLaunchTask": "classlist | cargo build --target=x86_64-pc-windows-msvc",
-            "cwd": "${workspaceRoot}/target/x86_64-pc-windows-msvc/debug",
+            "name": "classlist | Debug MSVC", "type": "cppvsdbg", "request": "launch",
+            "preLaunchTask": "classlist | cargo build",
+            "cwd": "${workspaceRoot}/target/debug",
             "program": "examples/classlist",
             "internalConsoleOptions": "openOnSessionStart", "externalConsole": false,
         },
         {
-            "name": "classlist | Release x64 MSVC", "type": "cppvsdbg", "request": "launch",
-            "preLaunchTask": "classlist | cargo build --target=x86_64-pc-windows-msvc --release",
-            "cwd": "${workspaceRoot}/target/x86_64-pc-windows-msvc/release",
+            "name": "classlist | Release MSVC", "type": "cppvsdbg", "request": "launch",
+            "preLaunchTask": "classlist | cargo build --release",
+            "cwd": "${workspaceRoot}/target/release",
             "program": "examples/classlist",
             "internalConsoleOptions": "openOnSessionStart", "externalConsole": false,
         },
