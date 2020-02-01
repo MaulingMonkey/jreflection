@@ -3,7 +3,7 @@
 [![Crates.io](https://img.shields.io/crates/v/jreflection.svg)](https://crates.io/crates/jreflection)
 [![Docs](https://docs.rs/jreflection/badge.svg)](https://docs.rs/jreflection/)
 [![GitHub](https://img.shields.io/github/stars/MaulingMonkey/jreflection.svg?label=GitHub&style=social)](https://github.com/MaulingMonkey/jreflection)
-[![unsafe: yes](https://img.shields.io/github/search/MaulingMonkey/jreflection/unsafe%2bextension%3Ars?color=yellow&label=unsafe)](https://github.com/MaulingMonkey/jreflection/search?q=unsafe+extension%3Ars)
+[![unsafe: forbid](https://img.shields.io/badge/unsafe-forbid-green.svg)](https://github.com/MaulingMonkey/jreflection/blob/master/src/lib.rs#L1)
 [![rust: 1.36.0+](https://img.shields.io/badge/rust-1.36.0%2B-green.svg)](https://gist.github.com/MaulingMonkey/c81a9f18811079f19326dac4daa5a359#minimum-supported-rust-versions-msrv)
 [![License](https://img.shields.io/crates/l/jreflection.svg)](https://github.com/MaulingMonkey/jreflection)
 [![dependency status](https://deps.rs/repo/github/MaulingMonkey/jreflection/status.svg)](https://deps.rs/repo/github/MaulingMonkey/jreflection)
