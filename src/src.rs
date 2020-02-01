@@ -28,7 +28,7 @@ impl Source {
     /// for path in [
     ///     r"C:\Program Files\Java\jre1.8.0_241\lib\rt.jar",
     ///     r"C:\Program Files\AdoptOpenJDK\jdk-8.0.232.09-hotspot\jre\lib\rt.jar",
-    ///     concat!(env!("LOCALAPPDATA"), r"\Android\Sdk\platforms\android-29\android.jar"),
+    ///     r"C:\Users\Name\AppData\Local\Android\Sdk\platforms\android-29\android.jar",
     /// ].iter().copied() {
     ///     let src = Source::from_jar(path).unwrap();
     /// }
