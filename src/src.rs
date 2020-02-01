@@ -15,13 +15,43 @@ enum SourceInt {
     JImage(JImage),
 }
 
+/// Represents a source of class data, typically a `.jar` or `modules` (jimage-format) file.
 pub struct Source(SourceInt);
 
 impl Source {
+    /// Open a specific `.jar` file
+    /// 
+    /// # Examples
+    /// 
+    /// ```no_run
+    /// # use jreflection::Source;
+    /// for path in [
+    ///     r"C:\Program Files\Java\jre1.8.0_241\lib\rt.jar",
+    ///     r"C:\Program Files\AdoptOpenJDK\jdk-8.0.232.09-hotspot\jre\lib\rt.jar",
+    ///     concat!(env!("LOCALAPPDATA"), r"\Android\Sdk\platforms\android-29\android.jar"),
+    /// ].iter().copied() {
+    ///     let src = Source::from_jar(path).unwrap();
+    /// }
+    /// ```
     pub fn from_jar(path: impl AsRef<Path>) -> Result<Self> {
         Ok(Self(SourceInt::Jar(Jar::open(path)?)))
     }
 
+    /// Open a JDK or JRE directory
+    /// 
+    /// This searches a variety of locations, subject to change (including `lib/modules`, `jre/lib/rt.jar`, and `lib/rt.jar`)
+    /// 
+    /// # Examples
+    /// 
+    /// ```no_run
+    /// # use jreflection::Source;
+    /// for path in [
+    ///     r"C:\Program Files\Java\jre1.8.0_241",
+    ///     r"C:\Program Files\AdoptOpenJDK\jdk-8.0.232.09-hotspot",
+    /// ].iter().copied() {
+    ///     let src = Source::from_jdk_dir(path).unwrap();
+    /// }
+    /// ```
     pub fn from_jdk_dir(path: impl AsRef<Path>) -> Result<Self> {
         let path = path.as_ref();
         let modules = path.join("lib").join("modules");
@@ -47,6 +77,14 @@ impl Source {
         Err(Error::new(ErrorKind::InvalidInput, format!("Unable to find lib/modules, jre/lib/rt.jar, or lib/rt.jar in: {}", path.display())))
     }
 
+    /// Read class metadata given a JNI path
+    /// 
+    /// # Examples
+    /// 
+    /// ```no_run
+    /// # let src = jreflection::Source::from_jdk_dir(r"C:\Program Files\AdoptOpenJDK\jdk-8.0.232.09-hotspot").unwrap();
+    /// let object = src.read_class("java/lang/Object").unwrap();
+    /// ```
     pub fn read_class(&self, path: impl AsRef<str>) -> Result<Class> {
         let path = path.as_ref();
         match &self.0 {
@@ -55,6 +93,21 @@ impl Source {
         }
     }
 
+    /// Enumerate all classes contained within this source
+    /// 
+    /// # Examples
+    /// 
+    /// ```no_run
+    /// use std::io::*;
+    /// # let src = jreflection::Source::from_jdk_dir(r"C:\Program Files\AdoptOpenJDK\jdk-8.0.232.09-hotspot").unwrap();
+    /// let found_object = src.for_each_class(|name: String|{
+    ///     if name == "java/lang/Object" {
+    ///         Err(Error::new(ErrorKind::Interrupted, "Found Object")) // early out
+    ///     } else {
+    ///         Ok(()) // continue
+    ///     }
+    /// }).is_err();
+    /// ```
     pub fn for_each_class(&self, mut f: impl FnMut(String) -> Result<()>) -> Result<()> {
         match &self.0 {
             SourceInt::Jar(jar)     => jar.for_each_class(|c| f(c.into())),
@@ -62,6 +115,16 @@ impl Source {
         }
     }
 
+    /// Collect all classes contained within this source
+    /// 
+    /// # Examples
+    /// 
+    /// ```no_run
+    /// # use std::collections::BTreeSet;
+    /// # let src = jreflection::Source::from_jdk_dir(r"C:\Program Files\AdoptOpenJDK\jdk-8.0.232.09-hotspot").unwrap();
+    /// let classes : Vec<String> = src.classes().unwrap();
+    /// let classes : BTreeSet<String> = src.classes().unwrap();
+    /// ```
     pub fn classes<C: Default + Extend<String>>(&self) -> Result<C> {
         let mut collection = C::default();
         self.for_each_class(|class|{
