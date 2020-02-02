@@ -5,10 +5,11 @@ use std::io::{self, Read};
 
 
 
+/// https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7
 #[allow(non_camel_case_types)]
 #[derive(Clone, Debug)]
 pub(crate) enum Attribute {
-    /// https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.2
+    /// [Java SE 7 &sect; 4.7.2](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.2)
     ConstantValue(field::Constant),
 
     /// https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.3
@@ -29,8 +30,18 @@ pub(crate) enum Attribute {
     /// https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.8
     Synthetic { #[doc(hidden)] __nyi: () },
 
-    /// https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.9
-    Signature { #[doc(hidden)] __nyi: () },
+    /// [Java SE 7 &sect; 4.3.4](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.3.4): Signatures
+    /// 
+    /// [Java SE 7 &sect; 4.7.9](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.9): The Signature Attribute
+    /// 
+    /// # Examples
+    /// 
+    /// * `"(Lorg/graalvm/compiler/virtual/phases/ea/PartialEscapeBlockState<TT;>;)V"`
+    /// * `"<E:Ljava/lang/Object;>Ljava/util/Collections$UnmodifiableSet<TE;>;Ljava/util/SortedSet<TE;>;Ljava/io/Serializable;"`
+    /// * `"Ljava/lang/Object;Ljava/security/PrivilegedExceptionAction<Ljava/lang/Boolean;>;"`
+    /// 
+    /// Note that a vanilla java class type starts with `L` and generic types start with `T`.
+    Signature(String),
 
     /// https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.10
     SourceFile { #[doc(hidden)] __nyi: () },
@@ -47,9 +58,8 @@ pub(crate) enum Attribute {
     /// https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.14
     LocalVariableTypeTable { #[doc(hidden)] __nyi: () },
 
-    /// https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.15
-    Deprecated { #[doc(hidden)] __nyi: () },
-    // Deprecated is actually completely parsed, but I'm keeping "__nyi" around in case future expansions to the JVM allow an optional deprecation message or something.
+    /// [Java SE 7 &sect; 4.7.15](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.15)
+    Deprecated { #[doc(hidden)] __in_case_of_extension_break_glass: () },
 
     /// https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.16
     RuntimeVisibleAnnotations { #[doc(hidden)] __nyi: () },
@@ -96,19 +106,35 @@ impl Attribute {
                     c                                   => io_data_err!("Expected Constant::{{Long, Float, Double, Integer, String}}, got {:?}", c),
                 }
             },
+            "Signature" => {
+                // https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.9
+                io_assert!(attribute_length == 2);
+                let signature_index = read_u2(read)?;
+                let constant = constants.get_utf8(signature_index)?;
+                Ok(Attribute::Signature(constant.to_string()))
+            },
+            "Deprecated" => {
+                // https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.15
+                // 
+                // attribute_length should be 0 according to the docs... but if it's ever extended with more info, it'd
+                // presumably be a semi-ignorable message that shouldn't result in an error here, so I just silently
+                // skip error handling here.
+                read_ignore(read, attribute_length)?;
+                Ok(Attribute::Deprecated {__in_case_of_extension_break_glass:()})
+            },
+
+            // Unimplemented attributes
             "Code"                                  => { read_ignore(read, attribute_length)?; Ok(Attribute::Code                                  {__nyi:()}) },
             "StackMapTable"                         => { read_ignore(read, attribute_length)?; Ok(Attribute::StackMapTable                         {__nyi:()}) },
             "Exceptions"                            => { read_ignore(read, attribute_length)?; Ok(Attribute::Exceptions                            {__nyi:()}) },
             "InnerClasses"                          => { read_ignore(read, attribute_length)?; Ok(Attribute::InnerClasses                          {__nyi:()}) },
             "EnclosingMethod"                       => { read_ignore(read, attribute_length)?; Ok(Attribute::EnclosingMethod                       {__nyi:()}) },
             "Synthetic"                             => { read_ignore(read, attribute_length)?; Ok(Attribute::Synthetic                             {__nyi:()}) },
-            "Signature"                             => { read_ignore(read, attribute_length)?; Ok(Attribute::Signature                             {__nyi:()}) },
             "SourceFile"                            => { read_ignore(read, attribute_length)?; Ok(Attribute::SourceFile                            {__nyi:()}) },
             "SourceDebugExtension"                  => { read_ignore(read, attribute_length)?; Ok(Attribute::SourceDebugExtension                  {__nyi:()}) },
             "LineNumberTable"                       => { read_ignore(read, attribute_length)?; Ok(Attribute::LineNumberTable                       {__nyi:()}) },
             "LocalVariableTable"                    => { read_ignore(read, attribute_length)?; Ok(Attribute::LocalVariableTable                    {__nyi:()}) },
             "LocalVariableTypeTable"                => { read_ignore(read, attribute_length)?; Ok(Attribute::LocalVariableTypeTable                {__nyi:()}) },
-            "Deprecated"                            => { read_ignore(read, attribute_length)?; Ok(Attribute::Deprecated                            {__nyi:()}) },
             "RuntimeVisibleAnnotations"             => { read_ignore(read, attribute_length)?; Ok(Attribute::RuntimeVisibleAnnotations             {__nyi:()}) },
             "RuntimeInvisibleAnnotations"           => { read_ignore(read, attribute_length)?; Ok(Attribute::RuntimeInvisibleAnnotations           {__nyi:()}) },
             "RuntimeVisibleParameterAnnotations"    => { read_ignore(read, attribute_length)?; Ok(Attribute::RuntimeVisibleParameterAnnotations    {__nyi:()}) },
